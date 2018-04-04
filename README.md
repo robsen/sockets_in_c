@@ -1,4 +1,4 @@
-#Networkprogramming with Sockets in C
+# Networkprogramming with Sockets in C
 
 This is just a learning project or rather code snippets for learning.
 Main goal is to learn the basics about Windows Sockets as well as
