@@ -13,6 +13,7 @@ int main(int argc, char** argv)
 	printf("Client\n");
 	printf("======\n\n");
 
+	// initialize Windows Sockets
 	errorCode = WSAStartup(requestedVersion, &wsaData);
 	switch (errorCode)
 	{
