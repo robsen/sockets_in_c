@@ -48,6 +48,19 @@ int main(int argc, char** argv)
 	if (errorCode != 0)
 		return 1;
 
+	// get Windows Socket
+	SOCKET socketDescriptor = INVALID_SOCKET;
+	socketDescriptor = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+	if (socketDescriptor == INVALID_SOCKET)
+	{
+		printf("[ERROR] Invalid Socket Descriptor.\n");
+		printf("It was not possible to establish a Windows-Socket communication.\n");
+		printf("Error-Code: %d", WSAGetLastError());
+		printf("[END-ERROR]");
+
+		// TODO: Create a switch-listing with all possible errors for useablity and human error-handling
+	}
+
 	WSACleanup();
 
 	return 0;
