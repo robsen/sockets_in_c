@@ -88,6 +88,7 @@ int main(int argc, char** argv)
 		printf("[ERROR] Remote Socket Connection Failed!\n");
 		printf("Error-Code: %d\n", WSAGetLastError());
 
+		closesocket(socketDescriptor);
 		WSACleanup();
 		exit(-1);
 
@@ -96,6 +97,7 @@ int main(int argc, char** argv)
 
 	// TODO: now it's time for sending data to server
 
+	closesocket(socketDescriptor);
 	WSACleanup();
 
 	return 0;
