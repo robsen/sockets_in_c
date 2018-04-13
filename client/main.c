@@ -7,7 +7,7 @@
 
 // temporary configuration data for remote socket
 #define PORT 80
-#define IP_ADDRESS "192.168.0.1"
+#define IP_ADDRESS "192.168.1.1"
 
 int main(int argc, char** argv)
 {
@@ -95,8 +95,36 @@ int main(int argc, char** argv)
 		// TODO: Create a switch-listing with all possible errors for useablity and human error-handling
 	}
 
-	// TODO: now it's time for sending data to server
+	// send data
+	char* data = "Hello, World!";
+	int dataToSend = sizeof(data);
+	int dataSended = 0;
+	int dataRemaining = dataToSend;
+	while (dataRemaining)
+	{
+		dataSended = send(
+			socketDescriptor,
+			data,
+			dataToSend,
+			MSG_OOB);
+		dataRemaining = dataToSend - dataSended;
+		if (dataRemaining == SOCKET_ERROR)
+		{
+			// TODO: Create error-printing function for a consistent error output format
+			printf("[ERROR] Data could not be sended!\n");
+			printf("Error-Code: %d\n", WSAGetLastError());
 
+			closesocket(socketDescriptor);
+			WSACleanup();
+			exit(-1);
+
+			// TODO: Create a switch-listing with all possible errors for useablity and human error-handling
+		}
+		// next data chunk
+		data += sizeof(char) * dataSended;
+	}
+
+	printf("Data has been sended.\n");
 	closesocket(socketDescriptor);
 	WSACleanup();
 
