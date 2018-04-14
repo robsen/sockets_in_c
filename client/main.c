@@ -98,20 +98,20 @@ int main(int argc, char** argv)
 	// send data
 	char* data = "Hello, World!";
 	int dataToSend = sizeof(data);
-	int dataSended = 0;
+	int dataSent = 0;
 	int dataRemaining = dataToSend;
 	while (dataRemaining)
 	{
-		dataSended = send(
+		dataSent = send(
 			socketDescriptor,
 			data,
 			dataToSend,
 			MSG_OOB);
-		dataRemaining = dataToSend - dataSended;
+		dataRemaining = dataToSend - dataSent;
 		if (dataRemaining == SOCKET_ERROR)
 		{
 			// TODO: Create error-printing function for a consistent error output format
-			printf("[ERROR] Data could not be sended!\n");
+			printf("[ERROR] Data could not be sent!\n");
 			printf("Error-Code: %d\n", WSAGetLastError());
 
 			closesocket(socketDescriptor);
@@ -121,10 +121,10 @@ int main(int argc, char** argv)
 			// TODO: Create a switch-listing with all possible errors for useablity and human error-handling
 		}
 		// next data chunk
-		data += sizeof(char) * dataSended;
+		data += sizeof(char) * dataSent;
 	}
 
-	printf("Data has been sended.\n");
+	printf("Data has been sent.\n");
 	closesocket(socketDescriptor);
 	WSACleanup();
 
