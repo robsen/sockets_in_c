@@ -110,6 +110,34 @@ int main(int argc, char** argv)
 		exit(1);
 	}
 
+	// recive data from server
+	int numberOfRecivedBytes;
+	const int recivedDataLength = 256;
+	char recivedData[recivedDataLength];
+	do
+	{
+		numberOfRecivedBytes =
+			recv(
+				socketDescriptor,
+				recivedData,
+				recivedDataLength,
+				0
+			);
+		if (numberOfRecivedBytes > 0)
+			printf(recivedData);
+		else if (numberOfRecivedBytes == CONNECTION_CLOSED)
+			printf("Connection closed by server.\n");
+		else
+		{
+			PrintErrorMessage(
+				"Receiving Data Failed",
+				"Failed to recive data.");
+			closesocket(socketDescriptor);
+			WSACleanup();
+			exit(1);
+		}
+	} while (numberOfRecivedBytes > 0);
+
 	closesocket(socketDescriptor);
 	WSACleanup();
 
