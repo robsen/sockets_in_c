@@ -5,11 +5,6 @@
 #include "network.h"
 
 
-// temporary configuration data for remote socket
-#define PORT 80
-#define IP_ADDRESS "192.168.1.1"
-
-
 void ExtractIPAndPort(
 	char* argument,
 	char* ip,
