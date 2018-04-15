@@ -91,8 +91,25 @@ int main(int argc, char** argv)
 		// next data chunk
 		data += sizeof(char) * dataSent;
 	}
-
 	printf("Data has been sent.\n");
+
+	// stop socket from sending
+	hasFailed =
+		shutdown(
+			socketDescriptor,
+			SD_SEND
+		);
+	if (hasFailed)
+	{
+		PrintErrorMessage(
+			"Connection Shutdown Failed",
+			"Could not shutdown the "
+			 "sending connection.");
+		closesocket(socketDescriptor);
+		WSACleanup();
+		exit(1);
+	}
+
 	closesocket(socketDescriptor);
 	WSACleanup();
 
