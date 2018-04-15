@@ -9,8 +9,34 @@
 #define PORT 80
 #define IP_ADDRESS "192.168.1.1"
 
+
+void ExtractIPAndPort(
+	char* argument,
+	char* ip,
+	int* port);
+
+
 int main(int argc, char** argv)
 {
+	// check correct program usage
+	if (argc != 2)
+	{
+		PrintErrorMessage(
+			"Invalid Argument",
+			"Usage of this program:\n"
+			 "client.exe ip:port\n"
+			 "Example:\tclient.exe 127.0.0.1:60000");
+		exit(1);
+	}
+
+	// get IP and port
+	char serverIP[16] = {0};
+	int serverPort;
+	ExtractIPAndPort(
+		argv[1],
+		serverIP,
+		&serverPort);
+
 	WSADATA wsaData;
 	WORD requestedVersion =
 		MAKEWORD(1, 0);
@@ -45,8 +71,8 @@ int main(int argc, char** argv)
 	struct sockaddr_in remoteSocketAddress;
 	remoteSocketAddress.sin_family = AF_INET;
 	// port & IP needs to be in network byte order (big-endian)
-	remoteSocketAddress.sin_port = htons(PORT);
-	remoteSocketAddress.sin_addr.S_un.S_addr = inet_addr(IP_ADDRESS);
+	remoteSocketAddress.sin_port = htons(serverPort);
+	remoteSocketAddress.sin_addr.S_un.S_addr = inet_addr(serverIP);
 
 	// establish connection to remote socket
 	hasFailed =
@@ -142,4 +168,30 @@ int main(int argc, char** argv)
 	WSACleanup();
 
 	return 0;
+}
+
+
+void ExtractIPAndPort(
+	char* argument,
+	char* ip,
+	int* port)
+{
+	int i = 0;
+	while(
+		argument[i] != ':' &&
+		argument[i] != '\0')
+	{
+		if (i == 15)
+			break;
+		ip[i] = argument[i];
+		i++;
+	}
+
+	char* ptr;
+	*port =
+		(int)strtol(
+			&argument[i+1], // start behind 'ip:'
+			&ptr,
+			10
+		);
 }
