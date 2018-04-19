@@ -1,4 +1,4 @@
-// run:	gcc main.c network.c -o client.exe -lwsock32
+// run:	gcc main.c network.c network_error.c -o client.exe -lwsock32
 // DLL:	Wsock32.dll (Microsoft Windows 32-bit Winsock 1.1)
 #include <stdio.h>
 #include <winsock.h>
@@ -7,63 +7,24 @@
 
 // temporary configuration data for remote socket
 #define PORT 80
-#define IP_ADDRESS "192.168.1.1"
+#define IP_ADDRESS "127.0.0.1"
 
 int main(int argc, char** argv)
 {
-	WSADATA wsaData;
-	WORD requestedVersion =
-		MAKEWORD(1, 0);
-	int hasFailed;
-
 	printf("Client\n");
 	printf("======\n\n");
 
-	hasFailed =
-		WSAStartup(
-			requestedVersion,
-			&wsaData
-	);
-	if (hasFailed)
-		PrintErrorAndExit(
-			"Failed to Initialize Winsocket DLL");
+	WSADATA wsaData;
+	InitializeWinSocketDLL_orDie(
+		&wsaData);
 
-	// get Windows Socket
-	SOCKET socketDescriptor = INVALID_SOCKET;
-	socketDescriptor = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-	if (socketDescriptor == INVALID_SOCKET)
-	{
-		PrintErrorMessage(
-			"Invalid Socket Descriptor",
-			"It was not possible to establish "
-			 "a Windows-Socket communication.");
-		WSACleanup();
-		exit(1);
-	}
+	SOCKET network =
+		CreateSocket_orDie();
 
-	// specify remote socket address
-	struct sockaddr_in remoteSocketAddress;
-	remoteSocketAddress.sin_family = AF_INET;
-	// port & IP needs to be in network byte order (big-endian)
-	remoteSocketAddress.sin_port = htons(PORT);
-	remoteSocketAddress.sin_addr.S_un.S_addr = inet_addr(IP_ADDRESS);
-
-	// establish connection to remote socket
-	hasFailed =
-		connect(
-			socketDescriptor,
-			(struct sockaddr*)(&remoteSocketAddress),
-			sizeof(remoteSocketAddress)
-		);
-	if (hasFailed)
-	{
-		PrintErrorMessage(
-			"Remote Socket Connection Failed!",
-			"Could not connect to server.");
-		closesocket(socketDescriptor);
-		WSACleanup();
-		exit(1);
-	}
+	EstablishConnection_orDie(
+		network,
+		IP_ADDRESS,
+		PORT);
 
 	// send data
 	char* data = "Hello, World!";
@@ -73,7 +34,7 @@ int main(int argc, char** argv)
 	while (dataRemaining)
 	{
 		dataSent = send(
-			socketDescriptor,
+			network,
 			data,
 			dataToSend,
 			MSG_OOB);
@@ -82,7 +43,7 @@ int main(int argc, char** argv)
 			PrintErrorMessage(
 				"Sending Data Failed",
 				"Data could not be sent!");
-			closesocket(socketDescriptor);
+			closesocket(network);
 			WSACleanup();
 			exit(1);
 		}
@@ -94,9 +55,9 @@ int main(int argc, char** argv)
 	printf("Data has been sent.\n");
 
 	// stop socket from sending
-	hasFailed =
+	int hasFailed =
 		shutdown(
-			socketDescriptor,
+			network,
 			SD_SEND
 		);
 	if (hasFailed)
@@ -105,7 +66,7 @@ int main(int argc, char** argv)
 			"Connection Shutdown Failed",
 			"Could not shutdown the "
 			 "sending connection.");
-		closesocket(socketDescriptor);
+		closesocket(network);
 		WSACleanup();
 		exit(1);
 	}
@@ -118,7 +79,7 @@ int main(int argc, char** argv)
 	{
 		numberOfRecivedBytes =
 			recv(
-				socketDescriptor,
+				network,
 				recivedData,
 				recivedDataLength,
 				0
@@ -132,13 +93,13 @@ int main(int argc, char** argv)
 			PrintErrorMessage(
 				"Receiving Data Failed",
 				"Failed to recive data.");
-			closesocket(socketDescriptor);
+			closesocket(network);
 			WSACleanup();
 			exit(1);
 		}
 	} while (numberOfRecivedBytes > 0);
 
-	closesocket(socketDescriptor);
+	closesocket(network);
 	WSACleanup();
 
 	return 0;

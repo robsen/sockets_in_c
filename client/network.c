@@ -1,70 +1,85 @@
 #include "network.h"
-#include <stdio.h>
-#include <winsock.h>
 
 
-void PrintErrorMessage(
-	char* title,
-	char* message)
+void InitializeWinSocketDLL_orDie(
+	WSADATA* socketInformation)
 {
-	const int errorCode =
-		WSAGetLastError();
-	printf("[Error] %s:\n", title);
-	printf(message);
-	printf("\n");
-	printf(
-		"Error-Code: %d (0x%X)\n",
-		errorCode,
-		errorCode);
+	const WORD
+	 socketVersion =
+		MAKEWORD(1, 0);
+	int hasFailed =
+		WSAStartup(
+			socketVersion,
+			socketInformation
+	);
+	if (hasFailed)
+		PrintErrorAndExit(
+			"Failed to Initialize Winsocket DLL");
 }
 
-void PrintErrorAndExit(
-	char* title)
+SOCKET CreateSocket_orDie()
 {
-	char* message;
-	const int errorCode =
-		WSAGetLastError();
-	switch (errorCode)
+	SOCKET newSocket =
+		socket(
+			AF_INET,
+			SOCK_STREAM,
+			IPPROTO_TCP
+		);
+	if (newSocket == INVALID_SOCKET)
 	{
-		case WSASYSNOTREADY:
-			message =
-				"The underlying network subsystem "
-				 "is not ready for network communication.";
-			break;
-
-		case WSAVERNOTSUPPORTED:
-			message =
-				"The version of Windows Sockets support "
-				 "requested is not provided by this "
-				 "particular Windows Sockets implementation.";
-			break;
-
-		case WSAEINPROGRESS:
-			message =
-				"A blocking Windows Sockets 1.1 "
-				 "operation is in progress.";
-			break;
-
-		case WSAEPROCLIM:
-			message =
-				"A limit on the number of tasks supported "
-				 "by the Windows Sockets implementation "
-				 "has been reached.";
-			break;
-
-		case WSAEFAULT:
-			message =
-				"The lpWSAData parameter is not "
-				 "a valid pointer.";
-			break;
-
-		default:
-			message =
-				"Unexpected error.";
+		PrintErrorMessage(
+			"Invalid Socket Descriptor",
+			"It was not possible to establish "
+			 "a Windows-Socket communication.");
+		WSACleanup();
+		exit(1);
 	}
+	return newSocket;
+}
 
-	PrintErrorMessage(
-		title,
-		message);
-	exit(1);
+void CreateRemoteAddress(
+	struct sockaddr*
+	 remoteAddress,
+	char* ipV4,
+	unsigned short port)
+{
+	((struct sockaddr_in*)
+	 remoteAddress)->sin_family =
+		AF_INET;
+	// port & IP needs to be in network byte order (big-endian)
+	((struct sockaddr_in*)
+	 remoteAddress)->sin_port =
+		htons(port);
+	((struct sockaddr_in*)
+	 remoteAddress)->sin_addr.S_un.S_addr =
+		inet_addr(ipV4);
+}
+
+void EstablishConnection_orDie(
+	SOCKET socket,
+	char* ipV4,
+	unsigned short port)
+{
+	struct sockaddr
+	 remoteAddress;
+	CreateRemoteAddress(
+		&remoteAddress,
+		ipV4,
+		port);
+
+	int hasFailed =
+		connect(
+			socket,
+			&remoteAddress,
+			sizeof(remoteAddress)
+		);
+	if (hasFailed)
+	{
+		PrintErrorMessage(
+			"Remote Socket Connection Failed!",
+			"Could not connect to server.");
+		closesocket(socket);
+		WSACleanup();
+		exit(1);
+	}
 }
