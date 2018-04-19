@@ -1,4 +1,4 @@
-#include "network.h"
+#include "../shared/network.h"
 
 
 void InitializeWinSocketDLL_orDie(

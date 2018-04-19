@@ -1,8 +1,8 @@
-// run:	gcc main.c network.c network_error.c -o client.exe -lwsock32
+// run:	gcc main.c ../shared/network.c ../shared/network_error.c -o client.exe -lwsock32
 // DLL:	Wsock32.dll (Microsoft Windows 32-bit Winsock 1.1)
 #include <stdio.h>
 #include <winsock.h>
-#include "network.h"
+#include "../shared/network.h"
 
 
 // temporary configuration data for remote socket
