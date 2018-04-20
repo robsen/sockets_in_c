@@ -5,32 +5,30 @@
 #include "../shared/network.h"
 
 
-void ExtractIPAndPort(
-	char* argument,
-	char* ip,
-	int* port);
+// some gcc versions have SD_SEND not defined
+#ifndef SD_SEND
+#define SD_SEND 1
+#endif
+
+
+void PrintUsage_andDie();
+
+int IsNumber(
+	char* string);
+
+unsigned short ExtractPort_orDie(
+	char* argument);
 
 
 int main(int argc, char** argv)
 {
 	// check correct program usage
 	if (argc != 2)
-	{
-		PrintErrorMessage(
-			"Invalid Argument",
-			"Usage of this program:\n"
-			 "server.exe ip:port\n"
-			 "Example:\tserver.exe 127.0.0.1:60000");
-		exit(1);
-	}
+		PrintUsage_andDie();
 
-	// get IP and port
-	char serverIP[16] = {0};
-	int serverPort;
-	ExtractIPAndPort(
-		argv[1],
-		serverIP,
-		&serverPort);
+	unsigned short port =
+		ExtractPort_orDie(
+			argv[1]);
 
 	printf("Server\n");
 	printf("======\n\n");
@@ -44,8 +42,8 @@ int main(int argc, char** argv)
 
 	EstablishConnection_orDie(
 		network,
-		serverIP,
-		serverPort);
+		"127.0.0.1",
+		port);
 
 	// send data
 	char* data = "Hello, World!";
@@ -126,28 +124,46 @@ int main(int argc, char** argv)
 	return 0;
 }
 
-
-void ExtractIPAndPort(
-	char* argument,
-	char* ip,
-	int* port)
+void PrintUsage_andDie()
 {
-	int i = 0;
-	while(
-		argument[i] != ':' &&
-		argument[i] != '\0')
+	PrintErrorMessage(
+		"Invalid Argument",
+		"Usage of this program:\n"
+		 "server.exe port\n"
+		 "Example:\tserver.exe 60000");
+	exit(1);
+}
+
+int IsNumber(
+	char* string)
+{
+	for(
+		int i = 0;
+		i < 6 && // length of digits in short.max + \0
+		string[i] != '\0';
+		i++
+	)
+		if (string[i] < '0' ||
+			string[i] > '9')
+			return 0; // 0 inidcates false
+
+	return 1; // 1 indicates true
+}
+
+unsigned short ExtractPort_orDie(
+	char* argument)
+{
+	unsigned int port;
+	char* ptr;
+
+	if (IsNumber(argument))
 	{
-		if (i == 15)
-			break;
-		ip[i] = argument[i];
-		i++;
+		port = strtol(
+			argument,
+			&ptr,
+			10);
+		return port;
 	}
 
-	char* ptr;
-	*port =
-		(int)strtol(
-			&argument[i+1], // start behind 'ip:'
-			&ptr,
-			10
-		);
+	PrintUsage_andDie();
 }
