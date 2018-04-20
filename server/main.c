@@ -1,4 +1,4 @@
-// run:	gcc main.c ../shared/network.c ../shared/network_error.c -o client.exe -lwsock32
+// run:	gcc main.c ../shared/network.c ../shared/network_error.c -o server.exe -lwsock32
 // DLL:	Wsock32.dll (Microsoft Windows 32-bit Winsock 1.1)
 #include <stdio.h>
 #include <winsock.h>
@@ -19,8 +19,8 @@ int main(int argc, char** argv)
 		PrintErrorMessage(
 			"Invalid Argument",
 			"Usage of this program:\n"
-			 "client.exe ip:port\n"
-			 "Example:\tclient.exe 127.0.0.1:60000");
+			 "server.exe ip:port\n"
+			 "Example:\tserver.exe 127.0.0.1:60000");
 		exit(1);
 	}
 
@@ -32,7 +32,7 @@ int main(int argc, char** argv)
 		serverIP,
 		&serverPort);
 
-	printf("Client\n");
+	printf("Server\n");
 	printf("======\n\n");
 
 	WSADATA wsaData;
