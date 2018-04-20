@@ -1,8 +1,8 @@
-#ifndef __NETWORK_H__
-#define __NETWORK_H__
+#ifndef __NETWORK_ERROR_H__
+#define __NETWORK_ERROR_H__
 
-#define SD_SEND 1
-#define CONNECTION_CLOSED 0
+#include <stdio.h>
+
 
 void PrintErrorMessage(
 	char* title,
