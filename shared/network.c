@@ -111,3 +111,23 @@ void BindSocket_orDie(
 		exit(1);
 	}
 }
+
+void ListenForRequests_orDie(
+	SOCKET listening)
+{
+	int hasFailed =
+		listen(
+			listening,
+			100 // max open connections
+		);	
+	if (hasFailed)
+	{
+		PrintErrorMessage(
+			"Listening for Requests Failed",
+			"Could not start to listen "
+			 "for Requests.");
+		closesocket(listening);
+		WSACleanup();
+		exit(1);
+	}
+}

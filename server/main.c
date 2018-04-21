@@ -44,6 +44,9 @@ int main(int argc, char** argv)
 		network,
 		port);
 
+	ListenForRequests_orDie(
+		network);
+
 	// send data
 	/*
 	char* data = "Hello, World!";

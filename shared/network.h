@@ -26,4 +26,7 @@ void EstablishConnection_orDie(
 void BindSocket_orDie(
 	SOCKET socketToBind,
 	unsigned short port);
+
+void ListenForRequests_orDie(
+	SOCKET listening);
 #endif
