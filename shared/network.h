@@ -22,4 +22,8 @@ void EstablishConnection_orDie(
 	SOCKET socket,
 	char* ipV4,
 	unsigned short port);
+
+void BindSocket_orDie(
+	SOCKET socketToBind,
+	unsigned short port);
 #endif

@@ -37,7 +37,7 @@ SOCKET CreateSocket_orDie()
 	return newSocket;
 }
 
-void CreateRemoteAddress(
+void CreateSocketAddress(
 	struct sockaddr*
 	 remoteAddress,
 	char* ipV4,
@@ -61,17 +61,17 @@ void EstablishConnection_orDie(
 	unsigned short port)
 {
 	struct sockaddr
-	 remoteAddress;
-	CreateRemoteAddress(
-		&remoteAddress,
+	 destinationAddress;
+	CreateSocketAddress(
+		&destinationAddress,
 		ipV4,
 		port);
 
 	int hasFailed =
 		connect(
 			socket,
-			&remoteAddress,
-			sizeof(remoteAddress)
+			&destinationAddress,
+			sizeof(destinationAddress)
 		);
 	if (hasFailed)
 	{
@@ -79,6 +79,34 @@ void EstablishConnection_orDie(
 			"Remote Socket Connection Failed!",
 			"Could not connect to server.");
 		closesocket(socket);
+		WSACleanup();
+		exit(1);
+	}
+}
+
+void BindSocket_orDie(
+	SOCKET socketToBind,
+	unsigned short port)
+{
+	struct sockaddr
+	 ownAddress;
+	CreateSocketAddress(
+		&ownAddress,
+		"127.0.0.1",
+		port);
+
+	int hasFailed =
+		bind(
+			socketToBind,
+			&ownAddress,
+			sizeof(ownAddress)
+		);
+	if (hasFailed)
+	{
+		PrintErrorMessage(
+			"Binding Socket Failed!",
+			"Could not bind the socket.");
+		closesocket(socketToBind);
 		WSACleanup();
 		exit(1);
 	}

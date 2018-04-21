@@ -40,12 +40,12 @@ int main(int argc, char** argv)
 	SOCKET network =
 		CreateSocket_orDie();
 
-	EstablishConnection_orDie(
+	BindSocket_orDie(
 		network,
-		"127.0.0.1",
 		port);
 
 	// send data
+	/*
 	char* data = "Hello, World!";
 	int dataToSend = sizeof(data);
 	int dataSent = 0;
@@ -72,23 +72,6 @@ int main(int argc, char** argv)
 		data += sizeof(char) * dataSent;
 	}
 	printf("Data has been sent.\n");
-
-	// stop socket from sending
-	int hasFailed =
-		shutdown(
-			network,
-			SD_SEND
-		);
-	if (hasFailed)
-	{
-		PrintErrorMessage(
-			"Connection Shutdown Failed",
-			"Could not shutdown the "
-			 "sending connection.");
-		closesocket(network);
-		WSACleanup();
-		exit(1);
-	}
 
 	// recive data from server
 	int numberOfRecivedBytes;
@@ -117,6 +100,7 @@ int main(int argc, char** argv)
 			exit(1);
 		}
 	} while (numberOfRecivedBytes > 0);
+	*/
 
 	closesocket(network);
 	WSACleanup();
