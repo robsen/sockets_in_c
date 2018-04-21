@@ -47,6 +47,13 @@ int main(int argc, char** argv)
 	ListenForRequests_orDie(
 		network);
 
+	SOCKET client;
+	ConnectToClient_orDie(
+		network,
+		&client);
+	closesocket(
+		network);
+
 	// send data
 	/*
 	char* data = "Hello, World!";

@@ -131,3 +131,24 @@ void ListenForRequests_orDie(
 		exit(1);
 	}
 }
+
+void ConnectToClient_orDie(
+	SOCKET server,
+	SOCKET* client)
+{
+	*client =
+		accept(
+			server,
+			NULL,
+			NULL
+		);
+	if (*client == INVALID_SOCKET)
+	{
+		PrintErrorMessage(
+			"Connection to Client Failed",
+			"Could not connect to the client.");
+		closesocket(server);
+		WSACleanup();
+		exit(1);
+	}
+}

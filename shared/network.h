@@ -29,4 +29,8 @@ void BindSocket_orDie(
 
 void ListenForRequests_orDie(
 	SOCKET listening);
+
+void ConnectToClient_orDie(
+	SOCKET server,
+	SOCKET* client);
 #endif
