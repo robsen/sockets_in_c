@@ -5,6 +5,11 @@
 #include "../shared/network.h"
 
 
+#ifndef SD_SEND
+#define SD_SEND 1
+#endif
+
+
 void ExtractIPAndPort(
 	char* argument,
 	char* ip,
@@ -49,16 +54,21 @@ int main(int argc, char** argv)
 
 	// send data
 	char* data = "Hello, World!";
-	int dataToSend = sizeof(data);
+	int dataToSend = 14;
 	int dataSent = 0;
 	int dataRemaining = dataToSend;
 	while (dataRemaining)
 	{
+		printf(
+			"[Data] %s [%d Bytes]\n",
+			data,
+			dataToSend);
+
 		dataSent = send(
 			network,
 			data,
 			dataToSend,
-			MSG_OOB);
+			0);
 		if (dataSent == SOCKET_ERROR)
 		{
 			PrintErrorMessage(
@@ -106,7 +116,10 @@ int main(int argc, char** argv)
 				0
 			);
 		if (numberOfRecivedBytes > 0)
-			printf(recivedData);
+		{
+			printf("\nReceived Data from Server:\n");
+			printf("%s\n", recivedData);
+		}
 		else if (numberOfRecivedBytes == CONNECTION_CLOSED)
 			printf("Connection closed by server.\n");
 		else

@@ -30,8 +30,8 @@ int main(int argc, char** argv)
 		ExtractPort_orDie(
 			argv[1]);
 
-	printf("Server\n");
-	printf("======\n\n");
+	printf("Echo-Server\n");
+	printf("===========\n\n");
 
 	WSADATA wsaData;
 	InitializeWinSocketDLL_orDie(
@@ -54,65 +54,57 @@ int main(int argc, char** argv)
 	closesocket(
 		network);
 
-	// send data
-	/*
-	char* data = "Hello, World!";
-	int dataToSend = sizeof(data);
-	int dataSent = 0;
-	int dataRemaining = dataToSend;
-	while (dataRemaining)
-	{
-		dataSent = send(
-			network,
-			data,
-			dataToSend,
-			MSG_OOB);
-		if (dataSent == SOCKET_ERROR)
-		{
-			PrintErrorMessage(
-				"Sending Data Failed",
-				"Data could not be sent!");
-			closesocket(network);
-			WSACleanup();
-			exit(1);
-		}
-
-		dataRemaining = dataToSend - dataSent;
-		// next data chunk
-		data += sizeof(char) * dataSent;
-	}
-	printf("Data has been sent.\n");
-
-	// recive data from server
+	// receive data from client
+	printf("Receiving Data from Client:\n");
 	int numberOfRecivedBytes;
 	const int recivedDataLength = 256;
 	char recivedData[recivedDataLength];
+	int dataSent;
 	do
 	{
 		numberOfRecivedBytes =
 			recv(
-				network,
+				client,
 				recivedData,
 				recivedDataLength,
 				0
 			);
 		if (numberOfRecivedBytes > 0)
-			printf(recivedData);
+		{
+			printf("%s\n", recivedData);
+
+			// echo data back to client
+			dataSent = send(
+				client,
+				recivedData,
+				numberOfRecivedBytes,
+				0);
+			if (dataSent == SOCKET_ERROR)
+			{
+				PrintErrorMessage(
+					"Sending Data Failed",
+					"Data could not be sent to client!");
+				closesocket(client);
+				WSACleanup();
+				exit(1);
+			}
+		}
 		else if (numberOfRecivedBytes == CONNECTION_CLOSED)
-			printf("Connection closed by server.\n");
+		{
+			printf("Connection closed by client.\n");
+			closesocket(client);
+		}
 		else
 		{
 			PrintErrorMessage(
 				"Receiving Data Failed",
-				"Failed to recive data.");
-			closesocket(network);
+				"Failed to recive data from client.");
+			closesocket(client);
 			WSACleanup();
 			exit(1);
 		}
 	} while (numberOfRecivedBytes > 0);
-	*/
 
-	closesocket(network);
 	WSACleanup();
 
 	return 0;

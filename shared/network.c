@@ -118,7 +118,7 @@ void ListenForRequests_orDie(
 	int hasFailed =
 		listen(
 			listening,
-			100 // max open connections
+			5 // max open connections
 		);	
 	if (hasFailed)
 	{
