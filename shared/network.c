@@ -52,7 +52,9 @@ void CreateSocketAddress(
 		htons(port);
 	((struct sockaddr_in*)
 	 remoteAddress)->sin_addr.S_un.S_addr =
-		inet_addr(ipV4);
+		ipV4 == INADDR_ANY ?
+			INADDR_ANY :
+			inet_addr(ipV4);
 }
 
 void EstablishConnection_orDie(
@@ -92,7 +94,7 @@ void BindSocket_orDie(
 	 ownAddress;
 	CreateSocketAddress(
 		&ownAddress,
-		"127.0.0.1",
+		INADDR_ANY,
 		port);
 
 	int hasFailed =
